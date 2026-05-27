@@ -1,0 +1,29 @@
+[package]
+name = "omegon-extension"
+version = "0.1.0"
+edition = "2024"
+repository = "https://github.com/styrene-lab/omegon-extension-rs"
+authors = ["Styrene Lab <admin@styrene.io>"]
+description = "Omegon extension SDK — safe, versioned interface for third-party extensions"
+license = "MIT OR Apache-2.0"
+readme = "README.md"
+keywords = ["omegon", "extension", "rpc", "sdk", "agent"]
+categories = ["development-tools", "api-bindings"]
+rust-version = "1.85"
+[dependencies]
+tokio = { version = "1", features = ["io-util", "io-std", "rt", "rt-multi-thread", "sync", "process", "macros", "time"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+anyhow = "1"
+thiserror = "2"
+tracing = "0.1"
+async-trait = "0.1"
+toml = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+
+[[bin]]
+name = "test-extension"
+path = "src/bin/test_extension.rs"
+
+[dev-dependencies]
+tokio-test = "0.4"
