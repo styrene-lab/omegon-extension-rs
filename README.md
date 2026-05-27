@@ -8,7 +8,7 @@ Extensions run as isolated processes communicating via JSON-RPC over stdin/stdou
 
 ```toml
 [dependencies]
-omegon-extension = "0.1"
+omegon-extension = "0.25"
 ```
 
 `omegon-extension` uses normal crate SemVer for Rust releases and exposes
