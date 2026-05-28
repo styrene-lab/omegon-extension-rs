@@ -10,6 +10,7 @@ readme = "README.md"
 keywords = ["omegon", "extension", "rpc", "sdk", "agent"]
 categories = ["development-tools", "api-bindings"]
 rust-version = "1.85"
+
 [dependencies]
 tokio = { version = "1", features = ["io-util", "io-std", "rt", "rt-multi-thread", "sync", "process", "macros", "time"] }
 serde = { version = "1", features = ["derive"] }
@@ -24,6 +25,10 @@ chrono = { version = "0.4", features = ["serde"] }
 [[bin]]
 name = "test-extension"
 path = "src/bin/test_extension.rs"
+required-features = ["test-extension-bin"]
+
+[features]
+test-extension-bin = []
 
 [dev-dependencies]
 tokio-test = "0.4"

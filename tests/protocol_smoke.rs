@@ -28,7 +28,8 @@ use std::process::{Command, Stdio};
 use std::time::Duration;
 
 /// Locate the test-extension binary cargo built alongside the test.
-/// `CARGO_BIN_EXE_<name>` is set by cargo at compile time for package binaries.
+/// CI runs this test with `--features test-extension-bin` so the smoke-test
+/// binary stays out of the default package binary set.
 fn test_extension_binary() -> std::path::PathBuf {
     env!("CARGO_BIN_EXE_test-extension").into()
 }
