@@ -64,6 +64,8 @@ pub enum TerminalPlacement {
     BottomPane,
     /// Open in a new tab/window when supported.
     NewTab,
+    /// Run as a managed background terminal session with transcript inspection.
+    BackgroundSession,
 }
 
 /// Result payload for `terminal.create@1`.

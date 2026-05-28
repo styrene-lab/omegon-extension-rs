@@ -243,6 +243,7 @@ fn terminal_create_shapes_match_contract() {
             TerminalPlacement::SidePane,
             TerminalPlacement::BottomPane,
             TerminalPlacement::NewTab,
+            TerminalPlacement::BackgroundSession,
         ]
         .into_iter()
         .map(|placement| {
