@@ -63,6 +63,9 @@ pub struct HostActionPermissions {
     /// Policy for `terminal.create@1` requests.
     #[serde(default)]
     pub terminal_create: TerminalCreatePermissions,
+    /// Policy for `resource.open@1` requests.
+    #[serde(default)]
+    pub resource_open: ResourceOpenPermissions,
 }
 
 /// Manifest policy for `terminal.create@1`.
@@ -80,6 +83,26 @@ pub struct TerminalCreatePermissions {
     /// Environment variable names the extension may pass through.
     #[serde(default)]
     pub allow_env: Vec<String>,
+}
+
+/// Manifest policy for `resource.open@1`.
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ResourceOpenPermissions {
+    /// Whether resource open actions are permitted.
+    #[serde(default)]
+    pub allow: bool,
+    /// Allowed URI schemes. v1 should normally use only `file` or host-owned schemes.
+    #[serde(default)]
+    pub allowed_schemes: Vec<String>,
+    /// Allowed filesystem roots for `file://` resources.
+    #[serde(default)]
+    pub allowed_roots: Vec<String>,
+    /// Allowed intent strings (`view`, `edit`, `read`, `inspect`). Empty means any intent.
+    #[serde(default)]
+    pub allowed_intents: Vec<String>,
+    /// Allowed resource kind strings. Empty means any kind.
+    #[serde(default)]
+    pub allowed_kinds: Vec<String>,
 }
 
 impl HostActionPermissions {
@@ -239,6 +262,11 @@ impl ExtensionManifest {
     /// Manifest policy for `terminal.create@1` actions.
     pub fn terminal_create_permissions(&self) -> &TerminalCreatePermissions {
         &self.permissions.host_actions.terminal_create
+    }
+
+    /// Manifest policy for `resource.open@1` actions.
+    pub fn resource_open_permissions(&self) -> &ResourceOpenPermissions {
+        &self.permissions.host_actions.resource_open
     }
 
     /// Load and validate manifest from TOML file.
@@ -513,25 +541,38 @@ type = "native"
 binary = "target/release/reader"
 
 [permissions.host_actions]
-allowed = ["terminal.create@1"]
+allowed = ["terminal.create@1", "resource.open@1"]
 
 [permissions.host_actions.terminal_create]
 interactive = true
 allowed_commands = ["bookokrat"]
 allowed_cwd_roots = ["${workspace}"]
 allow_env = []
+
+[permissions.host_actions.resource_open]
+allow = true
+allowed_schemes = ["file"]
+allowed_roots = ["${workspace}"]
+allowed_intents = ["view", "read"]
+allowed_kinds = ["markdown", "ebook", "pdf"]
 "#;
 
         let manifest: ExtensionManifest = toml::from_str(toml_str).unwrap();
         assert_eq!(
             manifest.permissions.host_actions.allowed,
-            vec!["terminal.create@1"]
+            vec!["terminal.create@1", "resource.open@1"]
         );
         let terminal = &manifest.permissions.host_actions.terminal_create;
         assert!(terminal.interactive);
         assert_eq!(terminal.allowed_commands, vec!["bookokrat"]);
         assert_eq!(terminal.allowed_cwd_roots, vec!["${workspace}"]);
         assert!(terminal.allow_env.is_empty());
+        let resource = &manifest.permissions.host_actions.resource_open;
+        assert!(resource.allow);
+        assert_eq!(resource.allowed_schemes, vec!["file"]);
+        assert_eq!(resource.allowed_roots, vec!["${workspace}"]);
+        assert_eq!(resource.allowed_intents, vec!["view", "read"]);
+        assert_eq!(resource.allowed_kinds, vec!["markdown", "ebook", "pdf"]);
     }
 
     #[test]

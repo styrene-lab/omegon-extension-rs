@@ -1,3 +1,7 @@
+use omegon_extension::actions::resource::{
+    RESOURCE_OPEN_V1, ResourceKind, ResourceOpenIntent, ResourceOpenParams, ResourceOpenPlacement,
+    ResourceOpenResult,
+};
 use omegon_extension::actions::terminal::{
     TERMINAL_CREATE_V1, TerminalCreateParams, TerminalCreateResult, TerminalPlacement,
 };
@@ -175,7 +179,10 @@ fn host_action_shapes_match_contract() {
     let contract = contract();
     let host_actions = &contract["host_actions"];
 
-    assert_eq!(strings(&host_actions["types"]), vec![TERMINAL_CREATE_V1]);
+    assert_eq!(
+        strings(&host_actions["types"]),
+        vec![TERMINAL_CREATE_V1, RESOURCE_OPEN_V1]
+    );
     assert_eq!(
         strings(&host_actions["host_action_fields"]),
         serialized_keys(HostAction::new("open-reader", TERMINAL_CREATE_V1, json!({})).unwrap())
@@ -263,5 +270,72 @@ fn terminal_create_shapes_match_contract() {
             actual_placement: "background_session".to_string(),
             warnings: vec!["placement degraded".to_string()],
         })
+    );
+}
+
+#[test]
+fn resource_open_shapes_match_contract() {
+    let contract = contract();
+    let host_actions = &contract["host_actions"];
+
+    let params = ResourceOpenParams {
+        uri: "file:///workspace/docs/architecture.md".to_string(),
+        intent: Some(ResourceOpenIntent::View),
+        kind: Some(ResourceKind::Markdown),
+        placement: Some(ResourceOpenPlacement::MainTab),
+        reuse_key: Some("docs/architecture.md".to_string()),
+        title: Some("Architecture".to_string()),
+    };
+    assert_eq!(
+        serialized_keys(&params),
+        strings(&host_actions["resource_open_params_fields"])
+    );
+    assert_eq!(
+        serde_json::to_value([
+            ResourceOpenIntent::View,
+            ResourceOpenIntent::Edit,
+            ResourceOpenIntent::Read,
+            ResourceOpenIntent::Inspect,
+        ])
+        .expect("serialize intents"),
+        host_actions["resource_open_intent_values"]
+    );
+    assert_eq!(
+        serde_json::to_value([
+            ResourceKind::Markdown,
+            ResourceKind::Code,
+            ResourceKind::Text,
+            ResourceKind::Diagram,
+            ResourceKind::Image,
+            ResourceKind::Ebook,
+            ResourceKind::Pdf,
+            ResourceKind::Directory,
+            ResourceKind::Unknown,
+        ])
+        .expect("serialize kinds"),
+        host_actions["resource_open_kind_values"]
+    );
+    assert_eq!(
+        serde_json::to_value([
+            ResourceOpenPlacement::Default,
+            ResourceOpenPlacement::MainTab,
+            ResourceOpenPlacement::SidePane,
+            ResourceOpenPlacement::Editor,
+            ResourceOpenPlacement::BackgroundSession,
+        ])
+        .expect("serialize placements"),
+        host_actions["resource_open_placement_values"]
+    );
+
+    let result = ResourceOpenResult {
+        resource_id: "res_123".to_string(),
+        backend: "flynt".to_string(),
+        actual_placement: "main_tab".to_string(),
+        handle: Some(json!({"tab_id": "tab-1"})),
+        warnings: vec!["fallback used".to_string()],
+    };
+    assert_eq!(
+        serialized_keys(&result),
+        strings(&host_actions["resource_open_result_fields"])
     );
 }
