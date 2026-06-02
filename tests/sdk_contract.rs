@@ -2,6 +2,10 @@ use omegon_extension::actions::package::{
     PACKAGE_INSTALL_V1, PackageActivation, PackageInstallParams, PackageInstallResult,
     PackageInstallSource,
 };
+use omegon_extension::actions::resource::{
+    RESOURCE_OPEN_V1, ResourceKind, ResourceOpenIntent, ResourceOpenParams, ResourceOpenPlacement,
+    ResourceOpenResult,
+};
 use omegon_extension::actions::terminal::{
     TERMINAL_CREATE_V1, TerminalCreateParams, TerminalCreateResult, TerminalPlacement,
 };
@@ -181,7 +185,7 @@ fn host_action_shapes_match_contract() {
 
     assert_eq!(
         strings(&host_actions["types"]),
-        vec![TERMINAL_CREATE_V1, PACKAGE_INSTALL_V1]
+        vec![TERMINAL_CREATE_V1, PACKAGE_INSTALL_V1, RESOURCE_OPEN_V1]
     );
     assert_eq!(
         strings(&host_actions["host_action_fields"]),
@@ -292,8 +296,11 @@ fn package_install_shapes_match_contract() {
         strings(&host_actions["package_install_params_fields"])
     );
     assert_eq!(
-        serde_json::to_value([PackageInstallSource::Registry, PackageInstallSource::LocalPath])
-            .expect("serialize package sources"),
+        serde_json::to_value([
+            PackageInstallSource::Registry,
+            PackageInstallSource::LocalPath
+        ])
+        .expect("serialize package sources"),
         host_actions["package_install_source_values"]
     );
     assert_eq!(
@@ -321,5 +328,89 @@ fn package_install_shapes_match_contract() {
     assert_eq!(
         serialized_keys(&result),
         strings(&host_actions["package_install_result_fields"])
+    );
+}
+
+#[test]
+fn resource_open_shapes_match_contract() {
+    let contract = contract();
+    let host_actions = &contract["host_actions"];
+
+    assert_eq!(
+        strings(&host_actions["resource_open_params_fields"]),
+        serialized_keys(ResourceOpenParams {
+            uri: "file:///workspace/docs/architecture.md".to_string(),
+            intent: Some(ResourceOpenIntent::View),
+            kind: Some(ResourceKind::Markdown),
+            placement: Some(ResourceOpenPlacement::MainTab),
+            reuse_key: Some("docs/architecture.md".to_string()),
+            title: Some("Architecture".to_string()),
+        })
+    );
+    assert_eq!(
+        strings(&host_actions["resource_open_intent_values"]),
+        vec![
+            ResourceOpenIntent::View,
+            ResourceOpenIntent::Edit,
+            ResourceOpenIntent::Read,
+            ResourceOpenIntent::Inspect,
+        ]
+        .into_iter()
+        .map(|intent| serde_json::to_value(intent)
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .to_string())
+        .collect::<Vec<_>>()
+    );
+    assert_eq!(
+        strings(&host_actions["resource_open_kind_values"]),
+        vec![
+            ResourceKind::Markdown,
+            ResourceKind::Code,
+            ResourceKind::Text,
+            ResourceKind::Diagram,
+            ResourceKind::Image,
+            ResourceKind::Ebook,
+            ResourceKind::Pdf,
+            ResourceKind::Directory,
+            ResourceKind::Unknown,
+        ]
+        .into_iter()
+        .map(|kind| serde_json::to_value(kind)
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .to_string())
+        .collect::<Vec<_>>()
+    );
+    assert_eq!(
+        strings(&host_actions["resource_open_placement_values"]),
+        vec![
+            ResourceOpenPlacement::Default,
+            ResourceOpenPlacement::MainTab,
+            ResourceOpenPlacement::SidePane,
+            ResourceOpenPlacement::Editor,
+            ResourceOpenPlacement::BackgroundSession,
+        ]
+        .into_iter()
+        .map(|placement| {
+            serde_json::to_value(placement)
+                .unwrap()
+                .as_str()
+                .unwrap()
+                .to_string()
+        })
+        .collect::<Vec<_>>()
+    );
+    assert_eq!(
+        strings(&host_actions["resource_open_result_fields"]),
+        serialized_keys(ResourceOpenResult {
+            resource_id: "res_123".to_string(),
+            backend: "flynt".to_string(),
+            actual_placement: "main_tab".to_string(),
+            handle: Some(json!({"tab_id": "tab-1"})),
+            warnings: vec!["fallback used".to_string()],
+        })
     );
 }

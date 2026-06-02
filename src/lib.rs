@@ -116,6 +116,10 @@ mod rpc;
 mod sampling;
 mod streaming;
 
+pub use actions::resource::{
+    RESOURCE_OPEN_V1, ResourceKind, ResourceOpenIntent, ResourceOpenParams, ResourceOpenPlacement,
+    ResourceOpenResult,
+};
 pub use capabilities::{Capabilities, ExtensionInfo, HostInfo, InitializeParams, InitializeResult};
 pub use contract::{
     JSONRPC_VERSION, METHOD_ACTIONS_EXECUTE, METHOD_BOOTSTRAP_SECRETS, METHOD_EXECUTE_TOOL,

@@ -85,7 +85,8 @@
   "host_actions": {
     "types": [
       "terminal.create@1",
-      "package.install@1"
+      "package.install@1",
+      "resource.open@1"
     ],
     "host_action_fields": [
       "id",
@@ -159,6 +160,45 @@
       "source",
       "status",
       "version",
+      "warnings"
+    ],
+    "resource_open_params_fields": [
+      "intent",
+      "kind",
+      "placement",
+      "reuse_key",
+      "title",
+      "uri"
+    ],
+    "resource_open_intent_values": [
+      "view",
+      "edit",
+      "read",
+      "inspect"
+    ],
+    "resource_open_kind_values": [
+      "markdown",
+      "code",
+      "text",
+      "diagram",
+      "image",
+      "ebook",
+      "pdf",
+      "directory",
+      "unknown"
+    ],
+    "resource_open_placement_values": [
+      "default",
+      "main_tab",
+      "side_pane",
+      "editor",
+      "background_session"
+    ],
+    "resource_open_result_fields": [
+      "actual_placement",
+      "backend",
+      "handle",
+      "resource_id",
       "warnings"
     ]
   }
