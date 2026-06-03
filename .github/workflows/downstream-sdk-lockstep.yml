@@ -1,0 +1,34 @@
+name: Downstream SDK lockstep
+
+on:
+  push:
+    tags:
+      - 'v*'
+    paths:
+      - 'schema/sdk-contract.json'
+      - 'src/contract.rs'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Do not create/update issues'
+        required: false
+        default: 'true'
+
+jobs:
+  downstream-issues:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Open downstream SDK lockstep issues
+        env:
+          GH_TOKEN: ${{ secrets.SDK_LOCKSTEP_ISSUE_TOKEN }}
+        run: |
+          args=()
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.dry_run }}" = "true" ]; then
+            args+=(--dry-run)
+          fi
+          python3 scripts/open-downstream-sdk-lockstep-issues.py \
+            --tag-or-sha "${GITHUB_REF_NAME:-${GITHUB_SHA}}" \
+            "${args[@]}"

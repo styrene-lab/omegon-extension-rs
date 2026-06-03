@@ -5,7 +5,7 @@
 //! is caught by tests instead of becoming an ecosystem fork.
 
 /// SDK contract compatibility version shared across Rust, Python, and TypeScript SDKs.
-pub const SDK_CONTRACT_VERSION: &str = "0.24";
+pub const SDK_CONTRACT_VERSION: &str = "0.25";
 
 /// Canonical SDK contract artifact embedded in the Rust crate.
 pub const SDK_CONTRACT_JSON: &str = include_str!("../schema/sdk-contract.json");
