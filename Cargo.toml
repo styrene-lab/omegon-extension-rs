@@ -1,6 +1,6 @@
 [package]
 name = "omegon-extension"
-version = "0.25.1"
+version = "0.25.2"
 edition = "2024"
 repository = "https://github.com/styrene-lab/omegon-extension-rs"
 authors = ["Styrene Lab <admin@styrene.io>"]
